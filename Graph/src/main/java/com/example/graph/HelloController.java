@@ -50,9 +50,6 @@ public class HelloController {
         });
 
     }
-    public void addVertex() {
-
-    }
     public void initialize() {
         // TODO load all the stack panes into apPane
         initializeVertices();
@@ -68,9 +65,6 @@ public class HelloController {
                 System.out.println(v.toString());
             }
             setVertices(vertices);
-//            if (!vertices.isEmpty()) {
-//                setVertices(vertices);
-//            }
         } catch (EOFException e) {
             System.out.println("File is empty.");
         } catch (IOException e) {
@@ -88,12 +82,6 @@ public class HelloController {
         } catch (IOException | ClassNotFoundException e) {
             System.out.println("No existing file, creating a new one.");
         }
-//        if (vertices.isEmpty()) {
-//            getVertices(vertices);
-//        }
-//        else {
-//            updateVertices(vertices);
-//        }
         getVertices(vertices);
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("vertices.txt"))) {
             oos.writeObject(vertices);
@@ -101,27 +89,6 @@ public class HelloController {
             e.printStackTrace();
         }
     }
-
-    private void updateVertices(List<Vertex> vertices) {
-        StackPane sp = (StackPane) apMain.getChildren().get(1);
-        StackPane sp1 = (StackPane) apMain.getChildren().get(0);
-
-        Text spT = (Text) sp.getChildren().get(1);
-        Text sp1T = (Text) sp1.getChildren().get(1);
-
-        vertices.get(0).setText(spT.getText().toString());
-        vertices.get(1).setText(sp1T.getText().toString());
-    }
-//    private void getVertices(List<Vertex> vertices) {
-//        StackPane sp = (StackPane) apMain.getChildren().get(1);
-//        StackPane sp1 = (StackPane) apMain.getChildren().get(0);
-//
-//        Text spT = (Text) sp.getChildren().get(1);
-//        Text sp1T = (Text) sp1.getChildren().get(1);
-//
-//        vertices.add(new Vertex(spT.getText().toString()));
-//        vertices.add(new Vertex(sp1T.getText().toString()));
-//    }
 
     private void getVertices(List<Vertex> vertices) {
         for (Object o: apMain.getChildren()) {
@@ -135,27 +102,24 @@ public class HelloController {
             }
         }
     }
-
-//    private void setVertices(List<Vertex> vertices) {
-//        if (vertices.size() < 2) return; // Prevent out-of-bounds errors
-//
-//        StackPane sp = (StackPane) apMain.getChildren().get(1);
-//        StackPane sp1 = (StackPane) apMain.getChildren().get(0);
-//
-//        Text spT = (Text) sp.getChildren().get(1);
-//        Text sp1T = (Text) sp1.getChildren().get(1);
-//
-//        spT.setText(vertices.get(0).getText());
-//        sp1T.setText(vertices.get(1).getText());
-//    }
-
     private void setVertices(List<Vertex> vertices) {
         int i = 0;
-        for (Object o: apMain.getChildren()) {
-            if (o instanceof StackPane sp) {
-                Text spT = (Text) sp.getChildren().get(1);
-                spT.setText(vertices.get(1).getText());
-                makeDraggable(sp);
+        for (Vertex vertex : vertices) {
+            try {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("vertex-view.fxml"));
+                StackPane vertexView = loader.load();
+
+                Text text = (Text) vertexView.getChildren().get(1);
+                text.setText(vertex.getText());
+                vertexView.setOnMouseClicked(this::onVertexClick);
+                centerNode(vertexView, apMain);
+                makeDraggable(vertexView);
+                vertexView.setLayoutX(vertex.getxOffSet());
+                vertexView.setLayoutY(vertex.getyOffSet());
+
+                apMain.getChildren().add(vertexView);
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }
     }
@@ -169,6 +133,7 @@ public class HelloController {
             StackPane vertexView = loader.load(); // Load the FXML as a StackPane
 
             apMain.getChildren().add(vertexView); // Add it to the AnchorPane
+            vertexView.setOnMouseClicked(this::onVertexClick);
             centerNode(vertexView, apMain);
             makeDraggable(vertexView);
         } catch (IOException e) {
