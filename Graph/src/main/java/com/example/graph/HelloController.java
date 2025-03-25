@@ -35,19 +35,21 @@ public class HelloController {
     }
 
     public void onVertexClick(MouseEvent mouseEvent) {
-        char ch = (char)(Math.random()*26 + 'A');
-        Alert a = new Alert(Alert.AlertType.CONFIRMATION, "Would you like " + ch + "?", ButtonType.YES, ButtonType.NO);
+        if (mouseEvent.isStillSincePress()) {
+            char ch = (char) (Math.random() * 26 + 'A');
+            Alert a = new Alert(Alert.AlertType.CONFIRMATION, "Would you like " + ch + "?", ButtonType.YES, ButtonType.NO);
 //        StackPane sp = (StackPane)mouseEvent.getEventType()
-        a.showAndWait().ifPresent(new Consumer<ButtonType>() {
-            @Override
-            public void accept(ButtonType buttonType) {
-                if(buttonType == ButtonType.YES) {
-                    StackPane pane = (StackPane) mouseEvent.getSource();
-                    Text t = (Text) pane.getChildren().get(1);
-                    t.setText(Character.toString(ch));
+            a.showAndWait().ifPresent(new Consumer<ButtonType>() {
+                @Override
+                public void accept(ButtonType buttonType) {
+                    if (buttonType == ButtonType.YES) {
+                        StackPane pane = (StackPane) mouseEvent.getSource();
+                        Text t = (Text) pane.getChildren().get(1);
+                        t.setText(Character.toString(ch));
+                    }
                 }
-            }
-        });
+            });
+        }
 
     }
     public void initialize() {
@@ -77,11 +79,6 @@ public class HelloController {
     public void onSaveClick(ActionEvent actionEvent) {
         List<Vertex> vertices = new ArrayList<>();
 
-        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream("vertices.txt"))) {
-            vertices = (List<Vertex>) ois.readObject();
-        } catch (IOException | ClassNotFoundException e) {
-            System.out.println("No existing file, creating a new one.");
-        }
         getVertices(vertices);
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("vertices.txt"))) {
             oos.writeObject(vertices);
